@@ -1,10 +1,13 @@
 library(shiny)
 library(sf)
+library(tidyverse)
+library(dplyr)
 
 
 ##Reading the data
 covid <- read.csv("covid-deaths.csv")
 tail(covid)
+filtered_regions <- filter(covid, REGIONS == 'Atlantic Region')
 
 ##Writing ui
 
@@ -50,9 +53,29 @@ ui <- fluidPage(
 
 server <- function(input,output,session) {
   
-  ##Table output
-  output$table <- renderDataTable({
+  covid_filter <- reactive({
+
+    # ##using the filter package to print the filtered values
+    dplyr::filter(
+      covid,
+        REGIONS %in% covid$REGIONS,
+        Gender %in% covid$Gender,
+        Age_group %in% covid$Age_group
+    )
+  #   # covid %>%
+  #   #   select(REGIONS, Gender, Age_group, DEATHS)
+  #   #   # filter(Gender == input$regions & Age_group == input$age)
+  #     
   })
+  
+  
+  
+  
+  ##Table output
+  output$table <- renderDataTable(
+    covid_filter(),
+    options = list(pageLength = 10)
+  )
   
 }
 
