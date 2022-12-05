@@ -7,7 +7,7 @@ library(dplyr)
 ##Reading the data
 covid <- read.csv("covid-deaths.csv")
 tail(covid)
-filtered_regions <- filter(covid, REGIONS == 'Atlantic Region')
+# filtered_regions <- filter(covid, REGIONS == 'Atlantic Region')
 
 ##Writing ui
 
@@ -24,7 +24,7 @@ ui <- fluidPage(
     sidebarPanel(
       
       ##Sorting the data in filtered manner 
-      selectInput("region", label = "Select any Region:", choices = sort(unique(covid$REGIONS))),
+      selectInput("region", label = "Select any Region:", choices = sort(unique(covid$Regions))),
       selectInput("gender", label = "Select any Gender:", choices = sort(unique(covid$Gender))),
       selectInput("age", label = "Select any age-group:", choices = sort(unique(covid$Age_group))),
       
@@ -58,7 +58,7 @@ server <- function(input,output,session) {
     # ##using the filter package to print the filtered values
     dplyr::filter(
       covid,
-        REGIONS %in% covid$REGIONS,
+        Regions %in% covid$Regions,
         Gender %in% covid$Gender,
         Age_group %in% covid$Age_group
     )
