@@ -3,6 +3,9 @@ library(sf)
 library(tidyverse)
 library(dplyr)
 
+geo <- sf::st_read("data/AtlasGrid-GrilleAtlas.gdb", layer = "AtlasGrid_GrilleAtlas") |>
+  sf::st_transform(crs = 4326)
+
 
 ##Reading the data
 covid <- read.csv("covid-deaths.csv")
@@ -24,9 +27,9 @@ ui <- fluidPage(
     sidebarPanel(
       
       ##Sorting the data in filtered manner 
-      selectInput("region", label = "Select any Region:", choices = sort(unique(covid$Regions))),
-      selectInput("gender", label = "Select any Gender:", choices = sort(unique(covid$Gender))),
-      selectInput("age", label = "Select any age-group:", choices = sort(unique(covid$Age_group))),
+      selectInput("Regions", label = "Select any Region:", choices = sort(unique(covid$Regions))),
+      selectInput("Gender", label = "Select any Gender:", choices = sort(unique(covid$Gender))),
+      selectInput("Age_group", label = "Select any age-group:", choices = sort(unique(covid$Age_group))),
       
       width = 3
     ),
@@ -67,8 +70,18 @@ server <- function(input,output,session) {
   #   #   # filter(Gender == input$regions & Age_group == input$age)
   #     
   })
+
   
   
+  geo_data <- reactive({
+    
+    dat <- dplyr::group_by(
+      covid_filter()
+      ) |>
+      
+      dplyr::select(Deaths)
+    
+  })
   
   
   ##Table output
