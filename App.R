@@ -42,6 +42,12 @@ ui <- fluidPage(
         tabPanel(
         "Data",
         dataTableOutput("table")
+        ),
+        
+        ##Panel 2
+        tabPanel(
+          "Map",
+          leafletOutput("map", width = "100%")
         )
       ),
       
