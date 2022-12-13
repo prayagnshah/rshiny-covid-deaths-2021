@@ -4,8 +4,12 @@ library(tidyverse)
 
 ##Reading the map of Canada 
 
-geo1 <- sf::st_read("data/canada_cd_sim.geojson", layer = "canada_cd_sim") |>
+geo1 <- sf::st_read("data/canada_cd_sim.geojson", layer = "canada_cd_sim") 
   sf::st_transform(crs = 4326)
+
+##Changing the projection according to the Canada's favorite
+
+geo1 <- st_transform(geo1, crs = "+proj=lcc +lat_1=49 +lat_2=77 +lon_0=-91.52 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 
 
 ##Reading the data
@@ -34,8 +38,8 @@ ui <- fluidPage(
       selectInput("Age_group", label = "Select any age-group:", choices = sort(unique(covid$Age_group)), multiple = T, selected = covid$Age_group[1]),
       br(), 
       h4("Spatial filtering"), 
-      sliderInput("lon", label = "Longitude", value = c(-110, -16), min = -120, max = -15), 
-      sliderInput("lat", label = "Latitude", value = c(35, 83), min = 31, max = 85), 
+      sliderInput("lon", label = "Longitude", value = c(-120, -15), min = -120, max = -15), 
+      sliderInput("lat", label = "Latitude", value = c(31, 85), min = 31, max = 85), 
       
       width = 3
     ),
@@ -95,6 +99,18 @@ server <- function(input,output,session) {
       geo1[bbox, ]
   })
   
+  geo_data <- reactive({
+    dat <- dplyr::group_by(
+      covid_filter()
+    ) |> 
+      
+      dplyr::summarize(Deaths = sum(Deaths, na.rm = T))
+    
+    ##Join with spatial data
+    dplyr::left_join(geo_filter(), dat)
+    dplyr::select(Deaths)
+  })
+  
   
   ##Table output
   output$table <- renderDataTable(
@@ -103,26 +119,29 @@ server <- function(input,output,session) {
   )
   
   output$map <- renderLeaflet({
+    
+    rgeo <- range(geo_data()$Deaths, na.rm = T)
     pal <- leaflet:colorNumeric(
       viridis::viridis_pal(option = "D")(100), 
+      domain = rgeo
       
     )
     
     ##Map 
     
-    leaflet(geo_filter()) |>
+    leaflet(geo_data()) |>
       setView(lng = -50, lat = 60, zoom = 5) |>
-      addProviderTiles("CartoDB.Positron") |>
+      addProviderTiles("Mapbox") |>
       addPolygons(
         opacity = 1,
         weight = 1,
-        color = pal(geo_filter)
+        color = ~ pal(geo_data()$Deaths)
       ) |>
       
       addLegend(
         position = "bottomright",
         pal = pal, 
-        values = seq(length.out = 5),
+        values = seq(rgeo[1], rgeo[2], length.out = 5),
         opacity = 1, 
         title = "Covid Deaths"
       )
