@@ -34,8 +34,8 @@ ui <- fluidPage(
       selectInput("Age_group", label = "Select any age-group:", choices = sort(unique(covid$Age_group)), multiple = T, selected = covid$Age_group[1]),
       br(), 
       h4("Spatial filtering"), 
-      sliderInput("lon", label = "Longitude", value = c(-141, -52), min = -120, max = -15), 
-      sliderInput("lat", label = "Latitude", value = c(41, 83), min = 31, max = 85), 
+      sliderInput("lon", label = "Longitude", value = c(-110, -16), min = -120, max = -15), 
+      sliderInput("lat", label = "Latitude", value = c(35, 83), min = 31, max = 85), 
       
       width = 3
     ),
@@ -80,7 +80,7 @@ server <- function(input,output,session) {
     )
   })
 
-  geo_filter <- ({
+  geo_filter <- reactive({
     
     ##Creating the bounding box 
     bbox <- c(
@@ -95,16 +95,6 @@ server <- function(input,output,session) {
       geo1[bbox, ]
   })
   
-  geo_data <- reactive({
-    
-    dat <- dplyr::group_by(
-      covid_filter()
-      ) |>
-      
-      dplyr::select(Deaths)
-    
-  })
-  
   
   ##Table output
   output$table <- renderDataTable(
@@ -112,9 +102,31 @@ server <- function(input,output,session) {
     options = list(pageLength = 10)
   )
   
-  output$map <- renderLeaflet(
-    NULL
-  )
+  output$map <- renderLeaflet({
+    pal <- leaflet:colorNumeric(
+      viridis::viridis_pal(option = "D")(100), 
+      
+    )
+    
+    ##Map 
+    
+    leaflet(geo_filter()) |>
+      setView(lng = -50, lat = 60, zoom = 5) |>
+      addProviderTiles("CartoDB.Positron") |>
+      addPolygons(
+        opacity = 1,
+        weight = 1,
+        color = pal(geo_filter)
+      ) |>
+      
+      addLegend(
+        position = "bottomright",
+        pal = pal, 
+        values = seq(length.out = 5),
+        opacity = 1, 
+        title = "Covid Deaths"
+      )
+  })
   
 }
 
