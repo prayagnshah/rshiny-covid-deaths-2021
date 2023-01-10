@@ -1,7 +1,6 @@
 # Deaths during the year 2021
 
-https://prayagnshah.shinyapps.io/rshiny-covid-deaths-2021/ - Link to see the filtered data of deaths canadian province-wise during covid-19
-
+https://prayagnshah.shinyapps.io/rshiny-covid-deaths-2021/ - Link to see the filtered data of deaths during covid-19 in Canada 
 ## Deployment:
 
 [Shiny Server](https://www.shinyapps.io/) - Back end software that builds a web server for shiny apps
@@ -19,7 +18,7 @@ https://prayagnshah.shinyapps.io/rshiny-covid-deaths-2021/ - Link to see the fil
 
 ## Explanation:
 
-* Analysis includes the data of deaths due to Covid-19 during the year 2021. We can filter out the data according to the province, gender and age-group. We can also select multiple provinces and other parameters to see the consolidated values. App also allows to search for data with the help of search bar.
+* Analysis includes the data of deaths due to Covid-19 during the year 2021. We can filter out the data according to the province, gender and age-group. We can also select multiple provinces and other parameters to see the consolidated values. App also allows to search for data with the help of search bar
 
 ## Dataset taken from:
 
